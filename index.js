@@ -15,11 +15,12 @@ app.get('/', function(req, res) {
 	}
 
 	var fullIP = ip6.normalize(hostnameWithoutBrackets);
+	var stringId = fullIP.split(':').slice(4, 5)[0];
 	var colourChars = fullIP.split(':').slice(5).join('');
 	var firstColour = colourChars.substring(0, 6);
 	var secondColour = colourChars.substring(6, 12);
 
-	res.end(`You are connected to ${fullIP} and the colour characters are ${colourChars}. The first colour is ${firstColour} and the second colour is ${secondColour}`);
+	res.end(`You are connected to ${fullIP} and the colour characters are ${colourChars}. The first colour is ${firstColour} and the second colour is ${secondColour}. ${stringId}`);
 });
 
 app.listen('16161', function() {
