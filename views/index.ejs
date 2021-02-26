@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>AS211869 - IPv6 Colour</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<%- include('includes/default-css.ejs') %>
+		<style>
+			body {
+				background-color: #<%= bgColour %>;
+				color: #<%= textColour %>;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="main-content">
+			<%- include(`../texts/${textId}.txt`).toString().replace(/\n/g, '<br>') %>
+		</div>
+		<div class="footer">
+			<div class="me">Made by <a target="_blank" href="https://truewinter.dev">TrueWinter (AS211869)</a></div>
+			<div class="textId">Text ID: <%= textId %></div>
+			<div class="credits">Inspired by <a target="_blank" href="https://hamptonmoore.com/posts/ipv6-color/">Hampton Moore's project</a></div>
+		</div>
+	</body>
+</html>
