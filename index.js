@@ -32,10 +32,6 @@ function ipv6ColourMiddleware(req, res, next) {
 app.set('view engine', 'ejs');
 
 app.get('/', ipv6ColourMiddleware, function(req, res) {
-	res.end(`You are connected to ${req.fullIP} and the colour characters are ${req.colourChars}. The first colour is ${req.firstColour} and the second colour is ${req.secondColour}. ${req.textId}`);
-});
-
-app.get('/text', ipv6ColourMiddleware, function(req, res) {
 	if (texts.includes(`${req.textId}.txt`)) {
 		return res.render('index', { textId: req.textId, bgColour: req.firstColour, textColour: req.secondColour });
 	}
