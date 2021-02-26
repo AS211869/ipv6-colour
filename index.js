@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 
-app.listen('/', function(req, res) {
+app.get('/', function(req, res) {
 	res.end(req.hostname);
 });
 
