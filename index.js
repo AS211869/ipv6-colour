@@ -29,9 +29,16 @@ function ipv6ColourMiddleware(req, res, next) {
 	next();
 }
 
+function log(req, res, next) {
+	var showRandom = !texts.includes(`${req.textId}.txt`);
+	// eslint-disable-next-line no-useless-escape
+	console.log(`Someone requested ${req.hostname.replace(/[\[\]]/g, '')}. Showing ${showRandom ? 'random' : req.textId} with background colour ${req.firstColour} and text colour ${req.secondColour}`);
+	next();
+}
+
 app.set('view engine', 'ejs');
 
-app.get('/', ipv6ColourMiddleware, function(req, res) {
+app.get('/', ipv6ColourMiddleware, log, function(req, res) {
 	if (texts.includes(`${req.textId}.txt`)) {
 		return res.render('index', { textId: req.textId, bgColour: req.firstColour, textColour: req.secondColour });
 	}
