@@ -3,6 +3,7 @@ var ip6 = require('ip6');
 var isIp = require('is-ip');
 var fs = require('fs');
 var path = require('path');
+var moment = require('moment');
 var app = express();
 
 var texts = fs.readdirSync(path.join(__dirname, 'texts'));
@@ -32,7 +33,7 @@ function ipv6ColourMiddleware(req, res, next) {
 function log(req, res, next) {
 	var showRandom = !texts.includes(`${req.textId}.txt`);
 	// eslint-disable-next-line no-useless-escape
-	console.log(`Someone requested ${req.hostname.replace(/[\[\]]/g, '')}. Showing ${showRandom ? 'random' : req.textId} with background colour ${req.firstColour} and text colour ${req.secondColour}`);
+	console.log(`${moment.utc()}: Someone requested ${req.hostname.replace(/[\[\]]/g, '')}. Showing ${showRandom ? 'random' : req.textId} with background colour ${req.firstColour} and text colour ${req.secondColour}`);
 	next();
 }
 
