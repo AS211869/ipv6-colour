@@ -2,8 +2,10 @@ var express = require('express');
 var ip6 = require('ip6');
 var isIp = require('is-ip');
 var ipAddress = require('ip-address');
+var isValidDomain = require('is-valid-domain');
 var fs = require('fs');
 var path = require('path');
+var dns = require('dns');
 var moment = require('moment');
 var app = express();
 
@@ -13,37 +15,63 @@ var texts = fs.readdirSync(path.join(__dirname, 'texts'));
 
 console.log(`Loaded ${texts.length} texts`);
 
+function validateHostname(hostname, cb) {
+	var isIPv6 = isIp.v6(hostname);
+	if (!isIPv6) {
+		if (isValidDomain(hostname)) {
+			if (!hostname.endsWith(config.dnsWhitelist)) {
+				return cb('Hostname is not part of the whitelisted domain', null);
+			}
+
+			dns.lookup(hostname, 6, function(err, address) {
+				if (err) {
+					return cb(`Failed to do DNS lookup: ${err}`, null);
+				}
+
+				return cb(null, true, address);
+			});
+		} else {
+			return cb(`You need to use IPv6 to access this page. You are currently accessing ${hostname}`, null);
+		}
+	}
+
+	return cb(null, null);
+}
+
 function ipv6ColourMiddleware(req, res, next) {
 	// eslint-disable-next-line no-unused-vars
-	var hostname = req.hostname;
+	//var hostname = req.hostname;
 	// eslint-disable-next-line no-useless-escape
 	var hostnameWithoutBrackets = req.hostname.replace(/[\[\]]/g, '');
-	var isIPv6 = isIp.v6(hostnameWithoutBrackets);
 
-	if (!isIPv6) {
-		return res.status(400).end(`You need to use IPv6 to access this page. You are currently accessing ${hostnameWithoutBrackets}`);
-	}
+	validateHostname(hostnameWithoutBrackets, function(err, newHostname) {
+		if (err) {
+			return res.status(500).end(err);
+		}
 
-	/** @type {ipAddress.Address6} */
-	var ip;
+		if (newHostname !== null) hostnameWithoutBrackets = newHostname;
 
-	try {
-		ip = new ipAddress.Address6(hostnameWithoutBrackets);
-	} catch (e) {
-		return res.status(400).end(`Invalid hostname: ${e}`);
-	}
+		/** @type {ipAddress.Address6} */
+		var ip;
 
-	if (!ip.isInSubnet(assignedPrefix)) {
-		return res.status(400).end('Hostname is not in configured prefix');
-	}
+		try {
+			ip = new ipAddress.Address6(hostnameWithoutBrackets);
+		} catch (e) {
+			return res.status(400).end(`Invalid hostname: ${e}`);
+		}
 
-	req.fullIP = ip6.normalize(hostnameWithoutBrackets);
-	req.textId = req.fullIP.split(':').slice(4, 5)[0];
-	req.colourChars = req.fullIP.split(':').slice(5).join('');
-	req.firstColour = req.colourChars.substring(0, 6);
-	req.secondColour = req.colourChars.substring(6, 12);
+		if (!ip.isInSubnet(assignedPrefix)) {
+			return res.status(400).end('Hostname is not in configured prefix');
+		}
 
-	next();
+		req.fullIP = ip6.normalize(hostnameWithoutBrackets);
+		req.textId = req.fullIP.split(':').slice(4, 5)[0];
+		req.colourChars = req.fullIP.split(':').slice(5).join('');
+		req.firstColour = req.colourChars.substring(0, 6);
+		req.secondColour = req.colourChars.substring(6, 12);
+
+		next();
+	});
 }
 
 function log(req, res, next) {
