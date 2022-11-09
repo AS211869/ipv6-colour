@@ -38,7 +38,7 @@ function validateHostname(hostname, cb) {
 		var ip;
 
 		try {
-			ip = new ipAddress.Address6(hostnameWithoutBrackets);
+			ip = new ipAddress.Address6(hostname);
 		} catch (e) {
 			return cb(`Invalid hostname: ${e}`, null);
 		}
