@@ -1,0 +1,4 @@
+{
+	"prefix": "2001:db8:c010:7s::/64",
+	"dnsWhitelist": "colour.example.com"
+}
