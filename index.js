@@ -1,11 +1,13 @@
 var express = require('express');
 var ip6 = require('ip6');
 var isIp = require('is-ip');
+var ipAddress = require('ip-address');
 var fs = require('fs');
 var path = require('path');
 var moment = require('moment');
 var app = express();
 
+var config = require('./config.json');
 var texts = fs.readdirSync(path.join(__dirname, 'texts'));
 
 console.log(`Loaded ${texts.length} texts`);
@@ -18,7 +20,20 @@ function ipv6ColourMiddleware(req, res, next) {
 	var isIPv6 = isIp.v6(hostnameWithoutBrackets);
 
 	if (!isIPv6) {
-		return res.end(`You need to use IPv6 to access this page. You are currently accessing ${hostnameWithoutBrackets}`);
+		return res.status(400).end(`You need to use IPv6 to access this page. You are currently accessing ${hostnameWithoutBrackets}`);
+	}
+
+	/** @type {ipAddress.Address6} */
+	var ip;
+
+	try {
+		ip = new ipAddress.Address6(hostnameWithoutBrackets);
+	} catch (e) {
+		return res.status(400).end(`Invalid hostname: ${e}`);
+	}
+
+	if (!ip.isInSubnet(config.prefix)) {
+		return res.status(400).end('Hostname is not in configured prefix');
 	}
 
 	req.fullIP = ip6.normalize(hostnameWithoutBrackets);
