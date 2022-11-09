@@ -33,7 +33,7 @@ function ipv6ColourMiddleware(req, res, next) {
 		return res.status(400).end(`Invalid hostname: ${e}`);
 	}
 
-	if (!assignedPrefix.isInSubnet(ip)) {
+	if (!ip.isInSubnet(assignedPrefix)) {
 		return res.status(400).end('Hostname is not in configured prefix');
 	}
 
