@@ -46,9 +46,9 @@ function validateHostname(hostname, cb) {
 		if (!ip.isInSubnet(assignedPrefix)) {
 			return cb('Hostname is not in configured prefix', null);
 		}
-	}
 
-	return cb(null, null);
+		return cb(null, null);
+	}
 }
 
 function ipv6ColourMiddleware(req, res, next) {
