@@ -28,7 +28,7 @@ function validateHostname(hostname, cb) {
 					return cb(`Failed to do DNS lookup: ${err}`, null);
 				}
 
-				return cb(null, true, address);
+				return cb(null, address);
 			});
 		} else {
 			return cb(`You need to use IPv6 to access this page. You are currently accessing ${hostname}`, null);
