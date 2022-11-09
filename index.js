@@ -33,6 +33,19 @@ function validateHostname(hostname, cb) {
 		} else {
 			return cb(`You need to use IPv6 to access this page. You are currently accessing ${hostname}`, null);
 		}
+	} else {
+		/** @type {ipAddress.Address6} */
+		var ip;
+
+		try {
+			ip = new ipAddress.Address6(hostnameWithoutBrackets);
+		} catch (e) {
+			return cb(`Invalid hostname: ${e}`, null);
+		}
+
+		if (!ip.isInSubnet(assignedPrefix)) {
+			return cb('Hostname is not in configured prefix', null);
+		}
 	}
 
 	return cb(null, null);
@@ -50,19 +63,6 @@ function ipv6ColourMiddleware(req, res, next) {
 		}
 
 		if (newHostname !== null) hostnameWithoutBrackets = newHostname;
-
-		/** @type {ipAddress.Address6} */
-		var ip;
-
-		try {
-			ip = new ipAddress.Address6(hostnameWithoutBrackets);
-		} catch (e) {
-			return res.status(400).end(`Invalid hostname: ${e}`);
-		}
-
-		if (!ip.isInSubnet(assignedPrefix)) {
-			return res.status(400).end('Hostname is not in configured prefix');
-		}
 
 		req.fullIP = ip6.normalize(hostnameWithoutBrackets);
 		req.textId = req.fullIP.split(':').slice(4, 5)[0];
