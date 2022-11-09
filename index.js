@@ -8,6 +8,7 @@ var moment = require('moment');
 var app = express();
 
 var config = require('./config.json');
+var assignedPrefix = new ipAddress.Address6(config.prefix);
 var texts = fs.readdirSync(path.join(__dirname, 'texts'));
 
 console.log(`Loaded ${texts.length} texts`);
@@ -32,7 +33,7 @@ function ipv6ColourMiddleware(req, res, next) {
 		return res.status(400).end(`Invalid hostname: ${e}`);
 	}
 
-	if (!ip.isInSubnet(config.prefix)) {
+	if (!assignedPrefix.isInSubnet(ip)) {
 		return res.status(400).end('Hostname is not in configured prefix');
 	}
 
